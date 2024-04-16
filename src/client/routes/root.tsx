@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Card, Chip, Container, Fab, FormControl, IconButton, InputLabel, MenuItem, Select, TextField, Tooltip, Typography } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Button, Card, Chip, Container, Dialog, DialogTitle, DialogActions, DialogContent, Fab, FormControl, IconButton, InputLabel, MenuItem, Select, TextField, Tooltip, Typography } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
@@ -7,13 +7,40 @@ import DoneIcon from '@mui/icons-material/Done';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-const tasks = [
+const tasksData = [
   {"name": "task 1", "description": "task 1 description", "dueDate": "1/1/2024", "createdDate": "1/1/2001", "status": "Not urgent"},
   {"name": "task 2", "description": "task 2 description", "dueDate": "2/2/2024", "createdDate": "2/2/2001", "status": "Due soon"},
   {"name": "task 3", "description": "task 3 description", "dueDate": "3/3/2024", "createdDate": "3/3/2001", "status": "Overdue"}
 ];
 
 export function TaskCards() {
+  const [tasks, setTasks] = useState(tasksData);
+  const [currentTask, setCurrentTask] = useState(null);
+  const [openEdit, setOpenEdit] = useState(false);
+
+  // Handles the currently open task being edited
+  const handleOpenEdit = (task) => {
+    setCurrentTask(task);
+    setOpenEdit(true);
+  };
+
+  // Handles closing the currently open task being edited
+  const handleCloseEdit = () => {
+    setOpenEdit(false);
+  };
+
+  // Handles saving changes after a task has been edited
+  const handleEdit = () => {
+    setTasks(tasks.map(task => task.name === currentTask.name ? currentTask : task));
+    handleCloseEdit();
+  };
+
+  // Handles the changes being requested to the task
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setCurrentTask({ ...currentTask, [name]: value });
+  };
+
   return (
     <Container>
       <Box
@@ -43,11 +70,11 @@ export function TaskCards() {
               <Typography variant="h5">{task.name}</Typography>
               <Chip label={task.status} color="info" variant="outlined"/>
               <Box>
-                <Typography>Created Date: {task.createdDate}</Typography>
-                <Typography>Due Date: {task.dueDate}</Typography>
+                <Typography variant="body2">Created Date: {task.createdDate}</Typography>
+                <Typography variant="body2">Due Date: {task.dueDate}</Typography>
               </Box>
               <Box>
-                <Typography>Description</Typography>
+                <Typography variant="body1">Description</Typography>
                 <Typography variant="body2">{task.description}</Typography>
               </Box>
               <Box display="flex" gap={1}>
@@ -57,7 +84,7 @@ export function TaskCards() {
                   </Fab>
                 </Tooltip>
                 <Tooltip title="Edit task">
-                  <Fab color="warning" size="small">
+                  <Fab color="warning" size="small" onClick={() => handleOpenEdit(task)}>
                     <EditIcon />
                   </Fab>
                 </Tooltip>
@@ -71,6 +98,20 @@ export function TaskCards() {
           </Card>
         ))}
       </Box>
+      {currentTask && (
+        <Dialog open={openEdit} onClose={handleCloseEdit}>
+          <DialogTitle>Edit Task</DialogTitle>
+          <DialogContent>
+            <TextField margin="dense" label="Name" type="text" fullWidth variant="standard" name="name" value={currentTask.name} onChange={handleChange} />
+            <TextField margin="dense" label="Description" type="text" fullWidth variant="standard" name="description" value={currentTask.description} onChange={handleChange} />
+            <TextField margin="dense" label="Due Date" type="date" fullWidth variant="standard" name="dueDate" value={currentTask.dueDate} onChange={handleChange} />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseEdit}>Cancel</Button>
+            <Button onClick={handleEdit}>Save</Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </Container>
   );
 }
