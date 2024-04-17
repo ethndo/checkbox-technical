@@ -143,6 +143,7 @@ export function TaskCards() {
               minWidth: 300,
               margin: 1,
               boxShadow: 2,
+              borderRadius: 3,
               transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
               '&:hover': {
                 transform: 'translateY(-4px)',
