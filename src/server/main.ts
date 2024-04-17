@@ -14,7 +14,14 @@ const pool = new Pool({
   port: 5432,
 });
 
-// Function to determine the status of the card
+/**
+ * calculateStatus: determines the status of the card based on the given creation
+ * date and due date.
+ * Returns:
+ *  - Overdue: the due date is past the created date.
+ *  - Due soon: the due date is within 7 days of the created date.
+ *  - Not urgent: otherwise.
+ */
 function calculateStatus(dueDate: Date, createdDate: Date) {
   const dateDifference = dueDate - createdDate;
   const days = dateDifference / (1000 * 60 * 60 * 24);
@@ -26,9 +33,15 @@ function calculateStatus(dueDate: Date, createdDate: Date) {
   } else {
     return 'Not urgent';
   }
-}
+};
 
-// Routes
+/**
+ * GET /tasks: retrieves all tasks available in the database in descending order by created date.
+ * Returns:
+ *  - A JSON list of all tasks.
+ * Errors:
+ *  - 500: Error adding retrieving the tasks.
+ */
 app.get('/tasks', async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT * FROM tasks ORDER BY created_date DESC');
@@ -39,6 +52,18 @@ app.get('/tasks', async (req, res) => {
   }
 });
 
+/**
+ * POST /add_task: adds a new task to the database, with the corresponding status.
+ * Body:
+ *  - taskName: the name of the task to be added.
+ *  - taskDescription: the description of the task to be added.
+ *  - taskDueDate: the due date of the task to be added.
+ * Returns:
+ *  - The new task that has been added.
+ * Errors:
+ *  - 400: Invalid/missing input.
+ *  - 500: Error adding the task.
+ */
 app.post('/add_task', async (req, res) => {
   const { taskName, taskDescription, taskDueDate } = req.body;
   // Check if name and due date were provided
@@ -64,6 +89,21 @@ app.post('/add_task', async (req, res) => {
   }
 });
 
+/**
+ * PUT /edit_task: edits an existing task and updates the database accordingly.
+ * Params:
+ *  - id: the id of the respective task in the database.
+ * Body:
+ *  - taskName: the name of the task to be edited.
+ *  - taskDescription: the description of the task to be edited.
+ *  - taskDueDate: the due date of the task to be edited.
+ * Returns:
+ *  - The updated task.
+ * Errors:
+ *  - 400: Invalid/missing input.
+ *  - 404: Task not found in the database.
+ *  - 500: Error editing the task.
+ */
 app.put('/edit_task/:id', async (req, res) => {
   const { id } = req.params;
   const { taskName, taskDescription, taskDueDate } = req.body;
@@ -93,9 +133,6 @@ app.put('/edit_task/:id', async (req, res) => {
       RETURNING *;
     `;
     const editTask = await pool.query(editTaskQuery, [taskName, taskDescription, taskDueDate, status, id]);
-    if (editTask.rows.length === 0) {
-      return res.status(404).json({ error: 'The task to be edited cannot be found.'});
-    }
     res.json(editTask.rows[0]);
   } catch (error) {
     console.error('There was an error trying to edit the task:', error);
@@ -103,6 +140,16 @@ app.put('/edit_task/:id', async (req, res) => {
   }
 });
 
+/**
+ * GET /search_tasks: searches and retrieves results from the database based on a search term
+ * that matches the name of tasks.
+ * Params:
+ *  - taskName: the input search string of the task.
+ * Returns:
+ *  - A JSON list of the matching tasks.
+ * Errors:
+ *  - 500: Error searching for tasks.
+ */
 app.get('/search_tasks', async (req, res) => {
   const { taskName } = req.query;
 

@@ -7,6 +7,7 @@ import DoneIcon from '@mui/icons-material/Done';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
+// TaskActionButton: Renders a floating action button with a specified icon
 const TaskActionButton = ({ title, color, size, IconComponent, onClick }) => {
   return (
     <Tooltip title={title}>
@@ -17,6 +18,7 @@ const TaskActionButton = ({ title, color, size, IconComponent, onClick }) => {
   );
 };
 
+// TaskrTitle: Renders the main title for the Taskr application
 const TaskrTitle = () => {
   return (
     <Box>
@@ -27,6 +29,7 @@ const TaskrTitle = () => {
   );
 };
 
+// TaskSearchBar: Renders the search bar and handles search requests
 const TaskSearchBar = ({ setTasks}) => {
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -58,6 +61,7 @@ const TaskSearchBar = ({ setTasks}) => {
   );
 };
 
+// TaskSortSelect: Renders a dropdown select for options to sort search results
 const TaskSortSelect = () => {
   return (
     <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
@@ -71,6 +75,7 @@ const TaskSortSelect = () => {
   )
 };
 
+// TaskEditDialog: Renders the edit dialog for a respective task and handles edit functionality
 const TaskEditDialog = ({ currentTask, open, handleClose, handleEdit }) => {
   const [taskName, setTaskName] = useState(currentTask.name);
   const [taskDescription, setTaskDescription] = useState(currentTask.description);
@@ -128,6 +133,7 @@ const TaskEditDialog = ({ currentTask, open, handleClose, handleEdit }) => {
   );
 };
 
+// TaskAddDialog: Renders the add dialog to add a new task and handles add functionality
 const TaskAddDialog = ({ open, handleClose, handleAdd }) => {
   const [taskName, setTaskName] = useState('');
   const [taskDescription, setTaskDescription] = useState('');
@@ -184,6 +190,7 @@ const TaskAddDialog = ({ open, handleClose, handleAdd }) => {
   );
 };
 
+// TaskCards: Renders the provided tasks into cards to display to the user
 export function TaskCards({ tasks, setTasks}) {
   const [currentTask, setCurrentTask] = useState(null);
   const [openEdit, setOpenEdit] = useState(false);
@@ -291,6 +298,7 @@ export function TaskCards({ tasks, setTasks}) {
   );
 }
 
+// Root: Renders the main canvas on which the components are displayed
 export default function Root() {
   const [tasks, setTasks] = useState([]);
   const [openAdd, setOpenAdd] = useState(false);
