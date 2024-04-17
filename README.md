@@ -111,3 +111,30 @@ Open a command line of your preference and do the following:
 
 The challenge assumes you will be storing and retrieving records from a database. The project contains an initial configuration for [PostgreSQL](https://www.postgresql.org/) to speed things up but you might pick your system of choice if you prefer. Either way, as mentioned before, the application should work as expected when running Docker Compose.
 In case you are not using an ORM to manage and connect to the database and are sticking to the project's setup, you should populate the `init.sql` schema creation script at the root. It is run automatically as part of `docker compose up` the first time it gets executed to create your table(s).
+
+## Design Decisions
+### Navigation
+In designing the navigation for the task management software, I aimed to look for a simple and easy to use setup which would be familiar to users, drawing inspiration from existing everyday websites that utilise a search feature. As such, having the search bar with the button to Create a Task on the left leaves that side to the user to search/create new tasks. Like many task viewing or even shopping websites, the right side is complemented by a filter and sort by functionality to potentially assist the user in narrowing down the types of tasks that they would like to search for.
+
+### Tasks
+As for the tasks themselves, I opted for gallery view of the tasks themselves, making it more appealing than just rows upon rows of tasks like an Excel sheet. The cards themselves are a simple design that include much of what the requirements detailed, highlighting the main parts - the name of the task and the status. This is followed by the respective creation and due dates and the description. I have also added in buttons to allow the user to add, edit or delete the respective tasks in 3 standard separate colours that correlate to their outcomes.
+
+The Create/Add Task and Edit Task modals that open are the same in design and are according to the requirements whereby there are inputs for Name, Description and Due Date.
+## Improvements
+### Features
+Further features that I would like to implement further include:
+- Filter: the filter button would allow users to filter by a certain criteria such as status (Overdue, Due Soon or Not Urgent) so as to allow for prioritisation of work and possibly by completed tasks.
+- Sort By: the sort by button would also allow users to better navigate the tasks that they have on hand. I have added stubs such as status, creation date and due date which could be implemented to help order tasks in a way that will help the user gain an overview of tasks allocated.
+- Complete/Delete Task Button: this would add further functionality to the task management system to allow actions other than edit. This would reflect the proper workflow of the completion of tasks and allow for full functionality as intended by the software.
+
+### Backend
+- Pagination: assuming there will be larger datasets if the software were to continue growing, implementing pagination would be crucial to allow for better viewing of tasks instead of endless scrolling of tasks. This would be implemented through returning a portion of the tasks at a time (possibly by adding offsets and limits)
+- Sorting: as mentioned above, this could benefit the user and could be implemented through extending queries to support other fields
+- Caching: I am not too familiar with the implementation of this but caching would store frequently accessed queries to reduce database load and improve the time in which results are returned especially for a larger database.
+- Refactoring of functions: some of the functions I have written are quite long and could be made more easily readable and maintainable through decomposition. The code could also be organised into modules based on functionality as well as separating into specific layers (business logic, data access and presentation)
+- Error Handling: there is only basic error handling so far that encapsulates the many possible cases that could occur. There are also minimal logging sstatements which could potentially assist in debugging should the codebase become larger.
+- Testing: there are no tests currently implemented which means that there is no indicator that once a new feature has been implemented that existing features will function.
+### Frontend
+- Refactoring and Reusability: despite separating components to their functionalities, these are still quite large and if I had more time I would spend time breaking these down into more focused components.
+- Client Side Validation: in terms of the task name, description and due dates there is currently no validation for the inputs and therefore could potentially cause problems in the future.
+- Error Handling: currently errors are not displayed to the user effectively and therefore should be implemented to give the user feedback as to what is happening with the software.
