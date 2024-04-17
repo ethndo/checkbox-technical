@@ -67,13 +67,30 @@ const TaskEditDialog = ({ currentTask, open, handleClose, handleChange, handleEd
     <Dialog open={open} onClose={handleClose}>
       <DialogTitle>Edit Task</DialogTitle>
       <DialogContent>
-        <TextField margin="dense" label="Name" type="text" fullWidth variant="standard" name="name" value={currentTask.name} onChange={handleChange} />
+        <TextField margin="dense" label="Name" type="text" fullWidth variant="filled" name="standard" value={currentTask.name} onChange={handleChange} />
         <TextField margin="dense" label="Description" type="text" fullWidth variant="standard" name="description" value={currentTask.description} onChange={handleChange} />
         <TextField margin="dense" label="Due Date" type="date" fullWidth variant="standard" name="dueDate" value={currentTask.dueDate} onChange={handleChange} />
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
         <Button onClick={handleEdit}>Save</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+const TaskAddDialog = ({ open, handleClose, handleAdd }) => {
+  return (
+    <Dialog open={open} onClose={handleClose}>
+      <DialogTitle>Add Task</DialogTitle>
+      <DialogContent>
+        <TextField margin="dense" label="Name" type="text" fullWidth variant="standard" name="name" />
+        <TextField margin="dense" label="Description" type="text" fullWidth variant="standard" name="description" />
+        <TextField margin="dense" label="Due Date" type="date" fullWidth variant="standard" name="dueDate" InputLabelProps={{ shrink: true }} />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose}>Cancel</Button>
+        <Button onClick={handleAdd}>Add</Button>
       </DialogActions>
     </Dialog>
   );
@@ -167,6 +184,23 @@ export function TaskCards() {
 }
 
 export default function Root() {
+  const [openAdd, setOpenAdd] = useState(false);
+
+   // Handles opening the add task dialog
+   const handleOpenAdd = () => {
+    setOpenAdd(true);
+  }
+
+  // Handles closing the add task dialog
+  const handleCloseAdd = () => {
+    setOpenAdd(false);
+  }
+  
+  // Handles adding a new task
+  const handleAdd = ({ name, description, dueDate}) => {
+
+  };
+
   return (
     <>
       <Box display="flex" flexDirection="column" gap={4}>
@@ -176,7 +210,12 @@ export default function Root() {
             <Box display="flex" alignItems="center" justifyContent="space-between" width="100%" gap={2}>
               <Box display="flex" alignItems="center" gap={2}>
                 <TaskSearchBar />
-                <TaskActionButton title="Add a new task" color="primary" size="small" IconComponent={AddIcon}/>
+                <TaskActionButton
+                  title="Add a new task"
+                  color="primary" size="small"
+                  IconComponent={AddIcon}
+                  onClick={() => handleOpenAdd()}
+                />
               </Box>
               <Box display="flex" alignItems="center" gap={2}>
                 <TaskActionButton title="Filter" color="primary" size="small" IconComponent={FilterAltIcon} />
@@ -185,6 +224,13 @@ export default function Root() {
             </Box>
           </Container>
         </Box>
+        {openAdd &&(
+          <TaskAddDialog
+            open={openAdd}
+            handleClose={() => handleCloseAdd()}
+            handleAdd={() => handleAdd()}
+          />
+        )}
         <TaskCards />
       </Box>
     </>
