@@ -27,18 +27,33 @@ const TaskrTitle = () => {
   );
 };
 
-const TaskSearchBar = () => {
+const TaskSearchBar = ({ tasks, setTasks}) => {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSearch = (searchTerm) => {
+    fetch(`/search_tasks?taskName=${encodeURIComponent(searchTerm)}`)
+    .then(response => response.json())
+    .then(data => {
+      setTasks(data);
+    })
+    .catch(error => {
+      console.error('There was an error searching for tasks:', error);
+    })
+  };
+
   return (
     <TextField
       InputProps={{
         endAdornment: (
-          <IconButton size="small">
+          <IconButton size="small" onClick={() => handleSearch(searchTerm)}>
             <SearchIcon />
           </IconButton>
         ),
       }}
       label="Search Tasks"
       size="small"
+      name="searchTerm"
+      onChange={(e) => setSearchTerm(e.target.value)}
     />
   );
 };
@@ -255,7 +270,7 @@ export function TaskCards({ tasks, setTasks}) {
                 <Typography variant="body1">Description</Typography>
                 <Typography variant="body2">{task.description}</Typography>
               </Box>
-              <Box display="flex" gap={1}>
+              <Box display="flex" justifyContent="center" gap={1}>
                 <TaskActionButton title="Complete task" color="success" size="small" IconComponent={DoneIcon} />
                 <TaskActionButton title="Edit task" color="warning" size="small" IconComponent={EditIcon} onClick={() => handleOpenEdit(task)} />
                 <TaskActionButton title="Delete task" color="error" size="small" IconComponent={DeleteIcon} />
@@ -320,7 +335,7 @@ export default function Root() {
           <Container>
             <Box display="flex" alignItems="center" justifyContent="space-between" width="100%" gap={2}>
               <Box display="flex" alignItems="center" gap={2}>
-                <TaskSearchBar />
+                <TaskSearchBar tasks={tasks} setTasks={setTasks} />
                 <TaskActionButton
                   title="Add a new task"
                   color="primary" size="small"
@@ -342,7 +357,7 @@ export default function Root() {
             handleAdd={handleAdd}
           />
         )}
-        <TaskCards tasks={tasks} setTasks={setTasks}/>
+        <TaskCards tasks={tasks} setTasks={setTasks} />
       </Box>
     </>
   )

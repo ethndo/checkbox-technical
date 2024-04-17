@@ -103,6 +103,24 @@ app.put('/edit_task/:id', async (req, res) => {
   }
 });
 
+app.get('/search_tasks', async (req, res) => {
+  const { taskName } = req.query;
+
+  const searchQuery = `
+    SELECT * FROM tasks
+    WHERE name ILIKE $1
+    ORDER BY name;
+  `;
+
+  try {
+    const { rows } = await pool.query(searchQuery, [`%${taskName}%`])
+    res.json(rows);
+  } catch (error) {
+    console.error('There was an error trying to search for tasks:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 ViteExpress.config({
   // Copy and paste of vite.config.ts just so vite-express does not need to import
   // vite, a devDependency, in runtime
