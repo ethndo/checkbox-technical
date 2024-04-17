@@ -13,6 +13,72 @@ const tasksData = [
   {"name": "task 3", "description": "task 3 description", "dueDate": "3/3/2024", "createdDate": "3/3/2001", "status": "Overdue"}
 ];
 
+const TaskActionButton = ({ title, color, size, IconComponent, onClick }) => {
+  return (
+    <Tooltip title={title}>
+      <Fab color={color} size={size} onClick={onClick}>
+        <IconComponent />
+      </Fab>
+    </Tooltip>
+  );
+};
+
+const TaskrTitle = () => {
+  return (
+    <Box>
+      <Container align="center">
+        <Typography variant="h3" color="primary">Taskr</Typography>
+      </Container>
+    </Box>
+  );
+};
+
+const TaskSearchBar = () => {
+  return (
+    <TextField
+      InputProps={{
+        endAdornment: (
+          <IconButton size="small">
+            <SearchIcon />
+          </IconButton>
+        ),
+      }}
+      label="Search Tasks"
+      size="small"
+    />
+  );
+};
+
+const TaskSortSelect = () => {
+  return (
+    <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+      <InputLabel>Sort by</InputLabel>
+      <Select label="Sort by">
+        <MenuItem>Status</MenuItem>
+        <MenuItem>Creation Date</MenuItem>
+        <MenuItem>Due Date</MenuItem>
+      </Select>
+    </FormControl>
+  )
+};
+
+const TaskEditDialog = ({ currentTask, open, handleClose, handleChange, handleEdit }) => {
+  return (
+    <Dialog open={open} onClose={handleClose}>
+      <DialogTitle>Edit Task</DialogTitle>
+      <DialogContent>
+        <TextField margin="dense" label="Name" type="text" fullWidth variant="standard" name="name" value={currentTask.name} onChange={handleChange} />
+        <TextField margin="dense" label="Description" type="text" fullWidth variant="standard" name="description" value={currentTask.description} onChange={handleChange} />
+        <TextField margin="dense" label="Due Date" type="date" fullWidth variant="standard" name="dueDate" value={currentTask.dueDate} onChange={handleChange} />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose}>Cancel</Button>
+        <Button onClick={handleEdit}>Save</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
 export function TaskCards() {
   const [tasks, setTasks] = useState(tasksData);
   const [currentTask, setCurrentTask] = useState(null);
@@ -45,6 +111,7 @@ export function TaskCards() {
     <Container>
       <Box
         display="flex"
+        flexWrap="wrap"
         justifyContent="center"
         alignItems="center"
         gap={4}
@@ -78,39 +145,22 @@ export function TaskCards() {
                 <Typography variant="body2">{task.description}</Typography>
               </Box>
               <Box display="flex" gap={1}>
-                <Tooltip title="Complete task">
-                  <Fab color="success" size="small">
-                    <DoneIcon />
-                  </Fab>
-                </Tooltip>
-                <Tooltip title="Edit task">
-                  <Fab color="warning" size="small" onClick={() => handleOpenEdit(task)}>
-                    <EditIcon />
-                  </Fab>
-                </Tooltip>
-                <Tooltip title="Delete task">
-                  <Fab color="error" size="small">
-                    <DeleteIcon />
-                  </Fab>
-                </Tooltip>
+                <TaskActionButton title="Complete task" color="success" size="small" IconComponent={DoneIcon} />
+                <TaskActionButton title="Edit task" color="warning" size="small" IconComponent={EditIcon} onClick={() => handleOpenEdit(task)} />
+                <TaskActionButton title="Delete task" color="error" size="small" IconComponent={DeleteIcon} />
               </Box>
             </Box>
           </Card>
         ))}
       </Box>
       {currentTask && (
-        <Dialog open={openEdit} onClose={handleCloseEdit}>
-          <DialogTitle>Edit Task</DialogTitle>
-          <DialogContent>
-            <TextField margin="dense" label="Name" type="text" fullWidth variant="standard" name="name" value={currentTask.name} onChange={handleChange} />
-            <TextField margin="dense" label="Description" type="text" fullWidth variant="standard" name="description" value={currentTask.description} onChange={handleChange} />
-            <TextField margin="dense" label="Due Date" type="date" fullWidth variant="standard" name="dueDate" value={currentTask.dueDate} onChange={handleChange} />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseEdit}>Cancel</Button>
-            <Button onClick={handleEdit}>Save</Button>
-          </DialogActions>
-        </Dialog>
+        <TaskEditDialog
+          currentTask={currentTask}
+          open={openEdit}
+          handleClose={() => handleCloseEdit()}
+          handleChange={() => handleChange()}
+          handleEdit={() => handleEdit()}
+        />
       )}
     </Container>
   );
@@ -120,46 +170,17 @@ export default function Root() {
   return (
     <>
       <Box display="flex" flexDirection="column" gap={4}>
-        <Box>
-          <Container align="center">
-            <Typography variant="h3" color="primary">Taskr</Typography>
-          </Container>
-        </Box>
+        <TaskrTitle />
         <Box>
           <Container>
             <Box display="flex" alignItems="center" justifyContent="space-between" width="100%" gap={2}>
               <Box display="flex" alignItems="center" gap={2}>
-                <TextField
-                  InputProps={{
-                    endAdornment: (
-                      <IconButton size="small">
-                        <SearchIcon />
-                      </IconButton>
-                    ),
-                  }}
-                  label="Search Tasks"
-                  size="small"
-                />
-                <Tooltip title="Add a new task">
-                  <Fab color="primary" size="small">
-                    <AddIcon />
-                  </Fab>
-                </Tooltip>
+                <TaskSearchBar />
+                <TaskActionButton title="Add a new task" color="primary" size="small" IconComponent={AddIcon}/>
               </Box>
               <Box display="flex" alignItems="center" gap={2}>
-                <Tooltip title="Filter">
-                  <Fab color="primary" size="small">
-                    <FilterAltIcon />
-                  </Fab>
-                </Tooltip>
-                <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
-                  <InputLabel>Sort by</InputLabel>
-                  <Select label="Sort by">
-                    <MenuItem>Status</MenuItem>
-                    <MenuItem>Creation Date</MenuItem>
-                    <MenuItem>Due Date</MenuItem>
-                  </Select>
-                </FormControl>
+                <TaskActionButton title="Filter" color="primary" size="small" IconComponent={FilterAltIcon} />
+                <TaskSortSelect />
               </Box>
             </Box>
           </Container>
