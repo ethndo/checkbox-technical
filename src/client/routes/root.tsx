@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Box, Button, Card, Chip, Container, Dialog, DialogTitle, DialogActions, DialogContent, Fab, FormControl, IconButton, InputLabel, MenuItem, Select, TextField, Tooltip, Typography } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
@@ -27,7 +27,7 @@ const TaskrTitle = () => {
   );
 };
 
-const TaskSearchBar = ({ tasks, setTasks}) => {
+const TaskSearchBar = ({ setTasks}) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleSearch = (searchTerm) => {
@@ -53,7 +53,7 @@ const TaskSearchBar = ({ tasks, setTasks}) => {
       label="Search Tasks"
       size="small"
       name="searchTerm"
-      onChange={(e) => setSearchTerm(e.target.value)}
+      onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
     />
   );
 };
@@ -95,7 +95,7 @@ const TaskEditDialog = ({ currentTask, open, handleClose, handleEdit }) => {
           variant="standard"
           name="name"
           value={taskName}
-          onChange={(e) => setTaskName(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setTaskName(e.target.value)}
         />
         <TextField
           margin="dense" 
@@ -105,7 +105,7 @@ const TaskEditDialog = ({ currentTask, open, handleClose, handleEdit }) => {
           variant="standard"
           name="description"
           value={taskDescription}
-          onChange={(e) => setTaskDescription(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setTaskDescription(e.target.value)}
         />
         <TextField
           required
@@ -116,7 +116,7 @@ const TaskEditDialog = ({ currentTask, open, handleClose, handleEdit }) => {
           variant="standard"
           name="dueDate"
           value={taskDueDate}
-          onChange={(e) => setTaskDueDate(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setTaskDueDate(e.target.value)}
           InputLabelProps={{ shrink: true }}
         />
       </DialogContent>
@@ -151,7 +151,7 @@ const TaskAddDialog = ({ open, handleClose, handleAdd }) => {
           variant="standard"
           name="name"
           value={taskName}
-          onChange={(e) => setTaskName(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setTaskName(e.target.value)}
         />
         <TextField
           margin="dense"
@@ -161,7 +161,7 @@ const TaskAddDialog = ({ open, handleClose, handleAdd }) => {
           variant="standard"
           name="description"
           value={taskDescription}
-          onChange={(e) => setTaskDescription(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setTaskDescription(e.target.value)}
         />
         <TextField
           required
@@ -172,7 +172,7 @@ const TaskAddDialog = ({ open, handleClose, handleAdd }) => {
           variant="standard"
           name="dueDate"
           value={taskDueDate}
-          onChange={(e) => setTaskDueDate(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setTaskDueDate(e.target.value)}
           InputLabelProps={{ shrink: true }}
         />
       </DialogContent>
@@ -335,7 +335,7 @@ export default function Root() {
           <Container>
             <Box display="flex" alignItems="center" justifyContent="space-between" width="100%" gap={2}>
               <Box display="flex" alignItems="center" gap={2}>
-                <TaskSearchBar tasks={tasks} setTasks={setTasks} />
+                <TaskSearchBar setTasks={setTasks} />
                 <TaskActionButton
                   title="Add a new task"
                   color="primary" size="small"
