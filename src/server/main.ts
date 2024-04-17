@@ -8,7 +8,7 @@ app.use(express.json());
 const { Pool } = pg;
 const pool = new Pool({
   user: 'edward',
-  host: 'localhost',
+  host: 'checkbox-postgres',
   database: 'checkbox_db',
   password: '123',
   port: 5432,
