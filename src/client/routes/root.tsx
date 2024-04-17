@@ -6,13 +6,6 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import DoneIcon from '@mui/icons-material/Done';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { SettingsBackupRestoreSharp } from '../../../node_modules/@mui/icons-material/index';
-
-const tasksData = [
-  {"name": "task 1", "description": "task 1 description", "dueDate": "1/1/2024", "createdDate": "1/1/2001", "status": "Not urgent"},
-  {"name": "task 2", "description": "task 2 description", "dueDate": "2/2/2024", "createdDate": "2/2/2001", "status": "Due soon"},
-  {"name": "task 3", "description": "task 3 description", "dueDate": "3/3/2024", "createdDate": "3/3/2001", "status": "Overdue"}
-];
 
 const TaskActionButton = ({ title, color, size, IconComponent, onClick }) => {
   return (
@@ -63,18 +56,58 @@ const TaskSortSelect = () => {
   )
 };
 
-const TaskEditDialog = ({ currentTask, open, handleClose, handleChange, handleEdit }) => {
+const TaskEditDialog = ({ currentTask, open, handleClose, handleEdit }) => {
+  const [taskName, setTaskName] = useState(currentTask.name);
+  const [taskDescription, setTaskDescription] = useState(currentTask.description);
+  const [taskDueDate, setTaskDueDate] = useState(new Date(currentTask.due_date).toISOString().slice(0, 10));
+  const taskId = currentTask.id;
+
+  const handleEditClick = () => {
+    handleEdit({ taskName, taskDescription, taskDueDate, taskId });
+    handleClose();
+  }
+
   return (
     <Dialog open={open} onClose={handleClose}>
       <DialogTitle>Edit Task</DialogTitle>
       <DialogContent>
-        <TextField margin="dense" label="Name" type="text" fullWidth variant="filled" name="standard" value={currentTask.name} onChange={handleChange} />
-        <TextField margin="dense" label="Description" type="text" fullWidth variant="standard" name="description" value={currentTask.description} onChange={handleChange} />
-        <TextField margin="dense" label="Due Date" type="date" fullWidth variant="standard" name="dueDate" value={currentTask.dueDate} onChange={handleChange} />
+        <TextField
+          required
+          margin="dense"
+          label="Name"
+          type="text"
+          fullWidth
+          variant="standard"
+          name="name"
+          value={taskName}
+          onChange={(e) => setTaskName(e.target.value)}
+        />
+        <TextField
+          margin="dense" 
+          label="Description"
+          type="text"
+          fullWidth
+          variant="standard"
+          name="description"
+          value={taskDescription}
+          onChange={(e) => setTaskDescription(e.target.value)}
+        />
+        <TextField
+          required
+          margin="dense"
+          label="Due Date"
+          type="date"
+          fullWidth
+          variant="standard"
+          name="dueDate"
+          value={taskDueDate}
+          onChange={(e) => setTaskDueDate(e.target.value)}
+          InputLabelProps={{ shrink: true }}
+        />
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleEdit}>Save</Button>
+        <Button onClick={handleEditClick}>Save</Button>
       </DialogActions>
     </Dialog>
   );
@@ -159,18 +192,29 @@ export function TaskCards({ tasks, setTasks}) {
   // Handles closing the currently open task being edited
   const handleCloseEdit = () => {
     setOpenEdit(false);
+    setCurrentTask(null);
   };
 
   // Handles saving changes after a task has been edited
-  const handleEdit = () => {
-    setTasks(tasks.map(task => task.name === currentTask.name ? currentTask : task));
-    handleCloseEdit();
-  };
-
-  // Handles the changes being requested to the task
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setCurrentTask({ ...currentTask, [name]: value });
+  const handleEdit = (task) => {
+    fetch(`/edit_task/${task.taskId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        taskName: task.taskName,
+        taskDescription: task.taskDescription,
+        taskDueDate: task.taskDueDate
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      setTasks(tasks.map(t => t.id === task.taskId ? data : t));
+    })
+    .catch(error => {
+      console.error('There was an error editing the task:', error);
+    })
   };
 
   return (
@@ -225,7 +269,6 @@ export function TaskCards({ tasks, setTasks}) {
           currentTask={currentTask}
           open={openEdit}
           handleClose={handleCloseEdit}
-          handleChange={handleChange}
           handleEdit={handleEdit}
         />
       )}
