@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Button, Card, Chip, Container, Dialog, DialogTitle, DialogActions, DialogContent, Fab, FormControl, IconButton, InputLabel, MenuItem, Select, TextField, Tooltip, Typography } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
@@ -6,6 +6,7 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import DoneIcon from '@mui/icons-material/Done';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { SettingsBackupRestoreSharp } from '../../../node_modules/@mui/icons-material/index';
 
 const tasksData = [
   {"name": "task 1", "description": "task 1 description", "dueDate": "1/1/2024", "createdDate": "1/1/2001", "status": "Not urgent"},
@@ -80,26 +81,74 @@ const TaskEditDialog = ({ currentTask, open, handleClose, handleChange, handleEd
 };
 
 const TaskAddDialog = ({ open, handleClose, handleAdd }) => {
+  const [taskName, setTaskName] = useState('');
+  const [taskDescription, setTaskDescription] = useState('');
+  const [taskDueDate, setTaskDueDate] = useState('');
+
+  const handleAddClick = () => {
+    handleAdd({ taskName, taskDescription, taskDueDate });
+    handleClose();
+  }
+
   return (
     <Dialog open={open} onClose={handleClose}>
       <DialogTitle>Add Task</DialogTitle>
       <DialogContent>
-        <TextField margin="dense" label="Name" type="text" fullWidth variant="standard" name="name" />
-        <TextField margin="dense" label="Description" type="text" fullWidth variant="standard" name="description" />
-        <TextField margin="dense" label="Due Date" type="date" fullWidth variant="standard" name="dueDate" InputLabelProps={{ shrink: true }} />
+        <TextField
+          required
+          margin="dense"
+          label="Name"
+          type="text"
+          fullWidth
+          variant="standard"
+          name="name"
+          value={taskName}
+          onChange={(e) => setTaskName(e.target.value)}
+        />
+        <TextField
+          margin="dense"
+          label="Description"
+          type="text"
+          fullWidth
+          variant="standard"
+          name="description"
+          value={taskDescription}
+          onChange={(e) => setTaskDescription(e.target.value)}
+        />
+        <TextField
+          required
+          margin="dense"
+          label="Due Date"
+          type="date"
+          fullWidth
+          variant="standard"
+          name="dueDate"
+          value={taskDueDate}
+          onChange={(e) => setTaskDueDate(e.target.value)}
+          InputLabelProps={{ shrink: true }}
+        />
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleAdd}>Add</Button>
+        <Button onClick={handleAddClick}>Add</Button>
       </DialogActions>
     </Dialog>
   );
 };
 
-export function TaskCards() {
-  const [tasks, setTasks] = useState(tasksData);
+export function TaskCards({ tasks, setTasks}) {
   const [currentTask, setCurrentTask] = useState(null);
   const [openEdit, setOpenEdit] = useState(false);
+
+  useEffect(() => {
+    fetch('/tasks')
+    .then(response => {
+      if (response.ok) return response.json();
+      throw new Error('Response not ok.')
+    })
+    .then(data => setTasks(data))
+    .catch(error => console.error('Error fetching tasks:', error));
+  }, []);
 
   // Handles the currently open task being edited
   const handleOpenEdit = (task) => {
@@ -155,8 +204,8 @@ export function TaskCards() {
               <Typography variant="h5">{task.name}</Typography>
               <Chip label={task.status} color="info" variant="outlined"/>
               <Box>
-                <Typography variant="body2">Created Date: {task.createdDate}</Typography>
-                <Typography variant="body2">Due Date: {task.dueDate}</Typography>
+                <Typography variant="body2">Created Date: {new Date(task.created_date).toLocaleDateString()}</Typography>
+                <Typography variant="body2">Due Date: {new Date(task.due_date).toLocaleDateString()}</Typography>
               </Box>
               <Box>
                 <Typography variant="body1">Description</Typography>
@@ -175,9 +224,9 @@ export function TaskCards() {
         <TaskEditDialog
           currentTask={currentTask}
           open={openEdit}
-          handleClose={() => handleCloseEdit()}
-          handleChange={() => handleChange()}
-          handleEdit={() => handleEdit()}
+          handleClose={handleCloseEdit}
+          handleChange={handleChange}
+          handleEdit={handleEdit}
         />
       )}
     </Container>
@@ -185,6 +234,7 @@ export function TaskCards() {
 }
 
 export default function Root() {
+  const [tasks, setTasks] = useState([]);
   const [openAdd, setOpenAdd] = useState(false);
 
    // Handles opening the add task dialog
@@ -198,8 +248,25 @@ export default function Root() {
   }
   
   // Handles adding a new task
-  const handleAdd = ({ name, description, dueDate}) => {
-
+  const handleAdd = (task) => {
+    fetch('/add_task', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        taskName: task.taskName,
+        taskDescription: task.taskDescription,
+        taskDueDate: task.taskDueDate
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      setTasks([...tasks, data]);
+    })
+    .catch(error => {
+      console.error('There was an error adding a new task:', error);
+    })
   };
 
   return (
@@ -228,11 +295,11 @@ export default function Root() {
         {openAdd &&(
           <TaskAddDialog
             open={openAdd}
-            handleClose={() => handleCloseAdd()}
-            handleAdd={() => handleAdd()}
+            handleClose={handleCloseAdd}
+            handleAdd={handleAdd}
           />
         )}
-        <TaskCards />
+        <TaskCards tasks={tasks} setTasks={setTasks}/>
       </Box>
     </>
   )

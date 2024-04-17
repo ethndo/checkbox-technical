@@ -3,6 +3,7 @@ import ViteExpress from 'vite-express';
 import pg from 'pg';
 
 const app = express();
+app.use(express.json());
 
 const { Pool } = pg;
 const pool = new Pool({
@@ -55,7 +56,6 @@ app.post('/add_task', async (req, res) => {
     VALUES ($1, $2, $3, $4, $5)
     RETURNING *;
   `;
-
   try {
     const { rows } = await pool.query(query, [taskName, taskDescription, taskDueDate, createdDate, status]);
     res.status(200).json(rows[0])
